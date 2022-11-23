@@ -5,7 +5,6 @@ const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
-const bcrypt = require('bcryptjs');
 
 const signToken = id => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -125,7 +124,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetUrl = `${req.protocol}://${req.get(
     'host'
   )}/api/v1/users/resetPassword/${resetToken}`;
-  console.log(resetUrl);
   const message = `Forgot your password? click on this link ${resetUrl} \n If you didn't forget your password, please ignore this email`;
 
   try {
@@ -140,7 +138,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       message: 'Token sent to your email!'
     });
   } catch (error) {
-    console.log(error);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
@@ -158,8 +155,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     passwordResetToken: haskToken,
     passwordResetExpires: { $gt: Date.now() }
   });
-
-  console.log('user-authcon', user);
 
   if (!user) {
     return next(new AppError('Token is invalid or has expired', 400));
